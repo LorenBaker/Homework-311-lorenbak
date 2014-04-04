@@ -1,5 +1,7 @@
 package com.lbconsulting.homework311_lorenbak.database;
 
+import com.lbconsulting.homework311_lorenbak.MyLog;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;

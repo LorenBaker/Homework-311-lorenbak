@@ -1,4 +1,4 @@
-package com.lbconsulting.homework311_lorenbak.database;
+package com.lbconsulting.homework311_lorenbak;
 
 import android.util.Log;
 

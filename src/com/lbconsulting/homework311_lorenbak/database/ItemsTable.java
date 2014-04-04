@@ -1,5 +1,7 @@
 package com.lbconsulting.homework311_lorenbak.database;
 
+import com.lbconsulting.homework311_lorenbak.MyLog;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;

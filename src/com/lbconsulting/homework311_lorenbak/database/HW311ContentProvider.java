@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 
+import com.lbconsulting.homework311_lorenbak.MyLog;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;

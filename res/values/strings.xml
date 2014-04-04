@@ -7,5 +7,6 @@
 	<string name="imTitleIcon_text">Item Icon</string>
 	<string name="tvTitle_hint">Title</string>
 	<string name="tvContent_hint">Content</string>
+	<string name="action_refresh_text">Refresh</string>
 
 </resources>
