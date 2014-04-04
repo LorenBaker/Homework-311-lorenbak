@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Homework311-lorenbak</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+	<string name="app_name">Homework311-lorenbak</string>
+	<string name="action_settings">Settings</string>
+	<string name="hello_world">Hello world!</string>
+	<string name="imTitleIcon_text">Item Icon</string>
+	<string name="tvTitle_hint">Title</string>
+	<string name="tvContent_hint">Content</string>
 
 </resources>
