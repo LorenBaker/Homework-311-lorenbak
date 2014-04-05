@@ -1,7 +1,5 @@
 package com.lbconsulting.homework311_lorenbak.database;
 
-import com.lbconsulting.homework311_lorenbak.MyLog;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v4.content.CursorLoader;
 
+import com.lbconsulting.homework311_lorenbak.MyLog;
+
 public class ItemsTable {
 
 	// Items data table
@@ -17,11 +17,13 @@ public class ItemsTable {
 	public static final String TABLE_ITEMS = "tblItems";
 	public static final String COL_ITEM_ID = "_id";
 	public static final String COL_ITEM_TITLE = "itemTitle";
+	public static final String COL_FIRST_LETTER_IN_TITLE = "firstLetterInTitle";
 	public static final String COL_ITEM_CONTENT = "itemContent";
-	public static final String COL_ITEM_ICON = "itemIcon";
+	public static final String COL_ITEM_CHECKED = "itemChecked";
 	public static final String COL_REFRESH_DATE_TIME = "refreshDateTime";
 
-	public static final String[] PROJECTION_ALL = { COL_ITEM_ID, COL_ITEM_TITLE, COL_ITEM_ICON, COL_REFRESH_DATE_TIME };
+	public static final String[] PROJECTION_ALL = { COL_ITEM_ID, COL_ITEM_TITLE, COL_FIRST_LETTER_IN_TITLE,
+			COL_ITEM_CONTENT, COL_ITEM_CHECKED, COL_REFRESH_DATE_TIME };
 
 	public static final String CONTENT_PATH = "articles";
 
@@ -38,8 +40,9 @@ public class ItemsTable {
 			+ " ("
 			+ COL_ITEM_ID + " integer primary key autoincrement, "
 			+ COL_ITEM_TITLE + " text collate nocase, "
+			+ COL_FIRST_LETTER_IN_TITLE + " text collate nocase, "
 			+ COL_ITEM_CONTENT + " text collate nocase, "
-			+ COL_ITEM_ICON + " text, "
+			+ COL_ITEM_CHECKED + " integer default 0, " // 0 = item not checked; 1 = item checked
 			+ COL_REFRESH_DATE_TIME + " integer"
 			+ ");";
 
@@ -79,8 +82,11 @@ public class ItemsTable {
 				}
 			}
 			// the item does not exist in the database ... so create it
+			String firstLetterInTitle = itemTitle.substring(0, 1).toUpperCase();
+
 			ContentValues newFieldValues = new ContentValues();
 			newFieldValues.put(COL_ITEM_TITLE, itemTitle);
+			newFieldValues.put(COL_FIRST_LETTER_IN_TITLE, firstLetterInTitle);
 			newFieldValues.put(COL_ITEM_CONTENT, itemContent);
 
 			Uri uri = CONTENT_URI;
@@ -98,8 +104,8 @@ public class ItemsTable {
 	// Read Methods
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static Cursor getItem(Context context, long taskID) {
-		Uri uri = Uri.withAppendedPath(CONTENT_URI, String.valueOf(taskID));
+	public static Cursor getItem(Context context, long itemID) {
+		Uri uri = Uri.withAppendedPath(CONTENT_URI, String.valueOf(itemID));
 		String[] projection = PROJECTION_ALL;
 		String selection = null;
 		String selectionArgs[] = null;
@@ -166,6 +172,44 @@ public class ItemsTable {
 		return numberOfUpdatedRecords;
 	}
 
+	public static void ToggleCheckBox(Context context, long itemID) {
+		Cursor cursor = getItem(context, itemID);
+		if (cursor != null) {
+			cursor.moveToFirst();
+			int columnIndex = cursor.getColumnIndexOrThrow(COL_ITEM_CHECKED);
+			int checkValue = cursor.getInt(columnIndex);
+
+			int newCheckValue = -1;
+			if (checkValue == 0) {
+				newCheckValue = 1;
+			} else {
+				newCheckValue = 0;
+			}
+
+			ContentValues newFieldValues = new ContentValues();
+			newFieldValues.put(COL_ITEM_CHECKED, newCheckValue);
+			UpdateItemFieldValues(context, itemID, newFieldValues);
+
+			cursor.close();
+		}
+	}
+
+	public static int UncheckAllCheckedItems(Context context) {
+		int numberOfUpdatedRecords = -1;
+
+		Uri uri = CONTENT_URI;
+		String selection = COL_ITEM_CHECKED + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf(1) };
+
+		ContentValues newFieldValues = new ContentValues();
+		newFieldValues.put(COL_ITEM_CHECKED, 0);
+
+		ContentResolver cr = context.getContentResolver();
+		numberOfUpdatedRecords = cr.update(uri, newFieldValues, selection, selectionArgs);
+
+		return numberOfUpdatedRecords;
+	}
+
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Delete Methods
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,6 +222,18 @@ public class ItemsTable {
 			String[] selectionArgs = null;
 			cr.delete(itemUri, where, selectionArgs);
 		}
+		return numberOfDeletedRecords;
+	}
+
+	public static int DeleteAllCheckedItems(Context context) {
+		int numberOfDeletedRecords = -1;
+
+		Uri uri = CONTENT_URI;
+		String where = COL_ITEM_CHECKED + " = ?";
+		String selectionArgs[] = new String[] { String.valueOf(1) };
+		ContentResolver cr = context.getContentResolver();
+		numberOfDeletedRecords = cr.delete(uri, where, selectionArgs);
+
 		return numberOfDeletedRecords;
 	}
 

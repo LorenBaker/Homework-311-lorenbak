@@ -3,11 +3,21 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
-	
+
 	<ListView
 		android:id="@+id/itemsListView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content" >
 	</ListView>
+
+	<TextView
+		android:id="@+id/tvEmpty"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="center"
+		android:text="@string/tvEmpty_text"
+		android:textSize="28sp"
+		android:textStyle="bold|italic"
+		android:visibility="gone" />
 
 </LinearLayout>

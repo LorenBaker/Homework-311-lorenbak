@@ -1,13 +1,22 @@
 package com.lbconsulting.homework311_lorenbak;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
 
 public class DetailsFragment extends Fragment {
+
+	private long mActiveItemID;
+	private LinearLayout fragDetailsLinearLayout;
+	private TextView tvEmptyFragDetails;
 
 	public DetailsFragment() {
 		// Empty constructor
@@ -37,7 +46,74 @@ public class DetailsFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.i("DetailsFragment", "onCreateView()");
-		return super.onCreateView(inflater, container, savedInstanceState);
+
+		if (savedInstanceState != null && savedInstanceState.containsKey("itemID")) {
+			mActiveItemID = savedInstanceState.getLong("itemID", 0);
+		} else {
+			Bundle bundle = getArguments();
+			if (bundle != null)
+				mActiveItemID = bundle.getLong("itemID", 0);
+		}
+
+		View view = inflater.inflate(R.layout.frag_details, container, false);
+		fragDetailsLinearLayout = (LinearLayout) view.findViewById(R.id.fragDetailsLinearLayout);
+		tvEmptyFragDetails = (TextView) view.findViewById(R.id.tvEmptyFragDetails);
+
+		if (mActiveItemID > 0) {
+			Cursor cursor = ItemsTable.getItem(getActivity(), mActiveItemID);
+
+			if (fragDetailsLinearLayout != null) {
+				fragDetailsLinearLayout.setVisibility(View.VISIBLE);
+			}
+			if (tvEmptyFragDetails != null) {
+				tvEmptyFragDetails.setVisibility(View.GONE);
+			}
+
+			if (cursor != null && view != null) {
+				cursor.moveToFirst();
+				TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
+				if (tvTitle != null) {
+					String title = cursor.getString(cursor.getColumnIndexOrThrow(ItemsTable.COL_ITEM_TITLE));
+					tvTitle.setText(title);
+				}
+
+				TextView tvTitleIcon = (TextView) view.findViewById(R.id.tvTitleIcon);
+				if (tvTitleIcon != null) {
+					String firstLetterInTitle = cursor.getString(cursor
+							.getColumnIndexOrThrow(ItemsTable.COL_FIRST_LETTER_IN_TITLE));
+					tvTitleIcon.setText(firstLetterInTitle);
+				}
+
+				TextView tvContent = (TextView) view.findViewById(R.id.tvContent);
+
+				if (tvContent != null) {
+					String content = cursor.getString(cursor.getColumnIndexOrThrow(ItemsTable.COL_ITEM_CONTENT));
+					tvContent.setText(content);
+				}
+
+			}
+
+			if (cursor != null) {
+				cursor.close();
+			}
+
+		} else {
+			if (fragDetailsLinearLayout != null) {
+				fragDetailsLinearLayout.setVisibility(View.GONE);
+			}
+			if (tvEmptyFragDetails != null) {
+				tvEmptyFragDetails.setVisibility(View.VISIBLE);
+			}
+		}
+		return view;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		MyLog.i("DetailsFragment", "onSaveInstanceState()");
+		// Store our listID
+		outState.putLong("itemID", mActiveItemID);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override

@@ -1,5 +1,13 @@
 package com.lbconsulting.homework311_lorenbak;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -8,7 +16,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-public class MainActivity extends FragmentActivity {
+import com.lbconsulting.homework311_lorenbak.ItemsFragment.OnTitleSelected;
+
+public class MainActivity extends FragmentActivity implements OnTitleSelected {
 
 	private ItemsFragment mItemsFragment;
 	private DetailsFragment mDetailsFragment;
@@ -23,15 +33,10 @@ public class MainActivity extends FragmentActivity {
 		MyLog.i("Main_ACTIVITY", "onCreate()");
 		setContentView(R.layout.activity_main);
 
-		LoadTitlesFragment();
-
 		View frag_details_placeholder = this.findViewById(R.id.frag_details_placeholder);
 		mTwoFragmentLayout = frag_details_placeholder != null
 				&& frag_details_placeholder.getVisibility() == View.VISIBLE;
 
-		if (mTwoFragmentLayout) {
-			LoadItemsDetailsFragment();
-		}
 	}
 
 	private void LoadTitlesFragment() {
@@ -89,12 +94,24 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onPause() {
 		MyLog.i("Main_ACTIVITY", "onPause()");
+
+		SharedPreferences preferences = getSharedPreferences("HW311", MODE_PRIVATE);
+		SharedPreferences.Editor applicationStates = preferences.edit();
+		applicationStates.putLong("ActiveItemID", mActiveItemID);
+		applicationStates.commit();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		MyLog.i("Main_ACTIVITY", "onResume()");
+		SharedPreferences storedStates = getSharedPreferences("HW311", MODE_PRIVATE);
+		mActiveItemID = storedStates.getLong("ActiveItemID", -1);
+
+		LoadTitlesFragment();
+		if (mTwoFragmentLayout) {
+			LoadItemsDetailsFragment();
+		}
 		super.onResume();
 	}
 
@@ -111,9 +128,19 @@ public class MainActivity extends FragmentActivity {
 		// handle item selection
 		switch (item.getItemId()) {
 			case R.id.action_refresh:
-				Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.", Toast.LENGTH_SHORT)
-						.show();
 				RefreshItems();
+				return true;
+
+			case R.id.action_discardItems:
+				Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
+						Toast.LENGTH_SHORT).show();
+				DiscardItems();
+				return true;
+
+			case R.id.action_acceptItems:
+				Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
+						Toast.LENGTH_SHORT).show();
+				AcceptItems();
 				return true;
 
 			default:
@@ -121,8 +148,34 @@ public class MainActivity extends FragmentActivity {
 		}
 	}
 
-	private void RefreshItems() {
+	private void DiscardItems() {
 		// TODO Auto-generated method stub
+
+	}
+
+	private void AcceptItems() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void RefreshItems() {
+		AssetManager assetManager = getAssets();
+		InputStream input = null;
+		try {
+			input = assetManager.open(DATA_FILENAME);
+			ItemsParser.parse(this, input);
+			if (input != null) {
+				input.close();
+			}
+
+		} catch (IOException e) {
+			MyLog.e("Main_ACTIVITY", "RefreshItems(): IOException opening " + DATA_FILENAME);
+			e.printStackTrace();
+
+		} catch (XmlPullParserException e) {
+			MyLog.e("Main_ACTIVITY", "RefreshItems(): XmlPullParserException parsing " + DATA_FILENAME);
+			e.printStackTrace();
+		}
 
 	}
 
@@ -150,4 +203,21 @@ public class MainActivity extends FragmentActivity {
 		super.onDestroy();
 	}
 
+	@Override
+	public void OnArticleSelected(long itemID) {
+		if (itemID > 0) {
+			mActiveItemID = itemID;
+			if (mTwoFragmentLayout) {
+				LoadItemsDetailsFragment();
+			} else {
+				StartDetailsActivity();
+			}
+		}
+	}
+
+	private void StartDetailsActivity() {
+		Intent detailsActivityIntent = new Intent(this, DetailsActivity.class);
+		detailsActivityIntent.putExtra("ActiveItemID", mActiveItemID);
+		startActivity(detailsActivityIntent);
+	}
 }

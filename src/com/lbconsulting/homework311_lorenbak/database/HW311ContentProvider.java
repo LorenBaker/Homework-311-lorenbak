@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 
-import com.lbconsulting.homework311_lorenbak.MyLog;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -16,6 +14,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+
+import com.lbconsulting.homework311_lorenbak.MyLog;
 
 public class HW311ContentProvider extends ContentProvider {
 
@@ -36,7 +36,7 @@ public class HW311ContentProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		MyLog.i("AListContentProvider", "onCreate");
+		MyLog.i("HW311ContentProvider", "onCreate");
 		// Construct the underlying database
 		// Defer opening the database until you need to perform
 		// a query or other transaction.
@@ -120,6 +120,7 @@ public class HW311ContentProvider extends ContentProvider {
 				if (newRowId > 0) {
 					// Construct and return the URI of the newly inserted row.
 					Uri newRowUri = ContentUris.withAppendedId(ItemsTable.CONTENT_URI, newRowId);
+					getContext().getContentResolver().notifyChange(ItemsTable.CONTENT_URI, null);
 					return newRowUri;
 				}
 				return null;
@@ -215,6 +216,7 @@ public class HW311ContentProvider extends ContentProvider {
 				throw new IllegalArgumentException("Method update: Unknown URI: " + uri);
 		}
 
+		getContext().getContentResolver().notifyChange(uri, null);
 		return updateCount;
 	}
 
@@ -233,7 +235,7 @@ public class HW311ContentProvider extends ContentProvider {
 	}
 
 	/**
-	 * A test package can call this to get a handle to the database underlying AListContentProvider, so it can insert
+	 * A test package can call this to get a handle to the database underlying HW311ContentProvider, so it can insert
 	 * test data into the database. The test case class is responsible for instantiating the provider in a test context;
 	 * {@link android.test.ProviderTestCase2} does this during the call to setUp()
 	 * 

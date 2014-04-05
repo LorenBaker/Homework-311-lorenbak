@@ -10,14 +10,30 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
 
 public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+	OnTitleSelected mOnTitleSelectedCallback;
+
+	// Container Activity must implement this interface
+	public interface OnTitleSelected {
+
+		public void OnArticleSelected(long itemID);
+	}
+
 	private ItemsCursorAdaptor mItemsCursorAdaptor;
 	private ListView mItemsListView;
+	private TextView mEmptyView;
+
+	private int ITEMS_LOADER_ID = 1;
+	private LoaderManager mLoaderManager = null;
+	private LoaderManager.LoaderCallbacks<Cursor> mItemsFragmentCallbacks;
 
 	public ItemsFragment() {
 		// Empty constructor
@@ -31,6 +47,9 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.i("ItemsFragment", "onActivityCreated()");
+		mLoaderManager = getLoaderManager();
+		mLoaderManager.initLoader(ITEMS_LOADER_ID, null, mItemsFragmentCallbacks);
+
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -38,6 +57,14 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 	public void onAttach(Activity activity) {
 		MyLog.i("ItemsFragment", "onAttach()");
 		super.onAttach(activity);
+
+		// This makes sure that the container activity has implemented
+		// the callback interface. If not, it throws an exception
+		try {
+			mOnTitleSelectedCallback = (OnTitleSelected) activity;
+		} catch (ClassCastException e) {
+			throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedCallback");
+		}
 	}
 
 	@Override
@@ -51,6 +78,18 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 			mItemsCursorAdaptor = new ItemsCursorAdaptor(getActivity(), null, 0);
 			mItemsListView.setAdapter(mItemsCursorAdaptor);
 		}
+
+		mItemsListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v, int position, long itemID) {
+				mOnTitleSelectedCallback.OnArticleSelected(itemID);
+			}
+		});
+
+		mEmptyView = (TextView) view.findViewById(R.id.tvEmpty);
+
+		mItemsFragmentCallbacks = this;
 
 		return view;
 	}
@@ -109,6 +148,13 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 		int id = loader.getId();
 		MyLog.i("ItemsFragment", "onLoadFinished: LoaderID = " + id);
 		mItemsCursorAdaptor.swapCursor(newCursor);
+		if (newCursor != null && newCursor.getCount() > 0) {
+			mItemsListView.setVisibility(View.VISIBLE);
+			mEmptyView.setVisibility(View.GONE);
+		} else {
+			mItemsListView.setVisibility(View.GONE);
+			mEmptyView.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override

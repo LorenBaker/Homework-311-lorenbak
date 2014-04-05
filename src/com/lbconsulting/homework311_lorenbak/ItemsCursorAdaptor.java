@@ -6,7 +6,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
@@ -27,11 +26,12 @@ public class ItemsCursorAdaptor extends CursorAdapter {
 				tvTitle.setText(title);
 			}
 
-			ImageView ivTitleIcon = (ImageView) view.findViewById(R.id.ivTitleIcon);
-			if (ivTitleIcon != null) {
-
+			TextView tvTitleIcon = (TextView) view.findViewById(R.id.tvTitleIcon);
+			if (tvTitleIcon != null) {
+				String firstLetterInTitle = cursor.getString(cursor
+						.getColumnIndexOrThrow(ItemsTable.COL_FIRST_LETTER_IN_TITLE));
+				tvTitleIcon.setText(firstLetterInTitle);
 			}
-
 		}
 	}
 
