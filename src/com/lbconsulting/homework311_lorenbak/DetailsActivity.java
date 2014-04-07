@@ -31,14 +31,10 @@ public class DetailsActivity extends FragmentActivity {
 		Bundle args = getIntent().getExtras();
 		mActiveItemID = args.getLong("ActiveItemID", -1);
 
-		/*		mActionBar = getActionBar();
-				mActionBar.setDisplayShowTitleEnabled(false);
-				mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);*/
-
 		frag_details_placeholder = this.findViewById(R.id.frag_details_placeholder);
-		if (frag_details_placeholder != null) {
+		/*if (frag_details_placeholder != null) {
 			LoadItemsDetailsFragment();
-		}
+		}*/
 
 	}
 
@@ -143,9 +139,10 @@ public class DetailsActivity extends FragmentActivity {
 		SharedPreferences storedStates = getSharedPreferences("HW311", MODE_PRIVATE);
 		mActiveItemID = storedStates.getLong("ActiveItemID", -1);
 
-		/*		if (frag_details_placeholder != null) {
-					LoadItemsDetailsFragment();
-				}*/
+		if (frag_details_placeholder != null) {
+			LoadItemsDetailsFragment();
+		}
+
 		super.onResume();
 	}
 

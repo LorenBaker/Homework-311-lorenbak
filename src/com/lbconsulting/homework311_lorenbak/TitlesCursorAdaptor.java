@@ -10,11 +10,11 @@ import android.widget.TextView;
 
 import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
 
-public class ItemsCursorAdaptor extends CursorAdapter {
+public class TitlesCursorAdaptor extends CursorAdapter {
 
-	public ItemsCursorAdaptor(Context context, Cursor c, int flags) {
+	public TitlesCursorAdaptor(Context context, Cursor c, int flags) {
 		super(context, c, flags);
-		MyLog.i("ItemsCursorAdaptor", "ItemsCursorAdaptor constructor.");
+		MyLog.i("TitlesCursorAdaptor", "TitlesCursorAdaptor constructor.");
 	}
 
 	@Override

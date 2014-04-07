@@ -16,11 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.lbconsulting.homework311_lorenbak.ItemsFragment.OnTitleSelected;
+import com.lbconsulting.homework311_lorenbak.TitlesFragment.OnTitleSelected;
 
-public class MainActivity extends FragmentActivity implements OnTitleSelected {
+public class TitlesActivity extends FragmentActivity implements OnTitleSelected {
 
-	private ItemsFragment mItemsFragment;
+	private TitlesFragment mTitlesFragment;
 	private DetailsFragment mDetailsFragment;
 	private long mActiveItemID;
 	private Boolean mTwoFragmentLayout = false;
@@ -42,23 +42,23 @@ public class MainActivity extends FragmentActivity implements OnTitleSelected {
 	private void LoadTitlesFragment() {
 		View frag_titles_placeholder = this.findViewById(R.id.frag_titles_placeholder);
 		if (frag_titles_placeholder != null) {
-			mItemsFragment = (ItemsFragment) this.getSupportFragmentManager().findFragmentByTag("ItemsFragment");
-			if (mItemsFragment == null) {
-				// create ItemsFragment
-				mItemsFragment = ItemsFragment.newInstance();
+			mTitlesFragment = (TitlesFragment) this.getSupportFragmentManager().findFragmentByTag("TitlesFragment");
+			if (mTitlesFragment == null) {
+				// create TitlesFragment
+				mTitlesFragment = TitlesFragment.newInstance();
 				MyLog.i("Main_ACTIVITY", "LoadTitlesFragment():NewInstance");
 
 				// add the fragment to the Activity
 				this.getSupportFragmentManager().beginTransaction()
-						.add(R.id.frag_titles_placeholder, mItemsFragment, "ItemsFragment")
+						.add(R.id.frag_titles_placeholder, mTitlesFragment, "TitlesFragment")
 						.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
 						.commit();
 			} else {
 				// mDetailsFragment exists ... so replace it
-				mItemsFragment = ItemsFragment.newInstance();
+				mTitlesFragment = TitlesFragment.newInstance();
 				// add the fragment to the Activity
 				this.getSupportFragmentManager().beginTransaction()
-						.replace(R.id.frag_titles_placeholder, mItemsFragment, "ItemsFragment")
+						.replace(R.id.frag_titles_placeholder, mTitlesFragment, "TitlesFragment")
 						.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
 						.commit();
 			}

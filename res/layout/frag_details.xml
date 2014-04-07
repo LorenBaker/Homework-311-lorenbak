@@ -36,9 +36,7 @@
 		android:text="@string/tvEmptyFragDetails_text"
 		android:textSize="28sp"
 		android:textStyle="bold|italic"
-		android:visibility="gone" />
-
-	<TextView>
+		android:visibility="gone" >
 	</TextView>
 
 </LinearLayout>

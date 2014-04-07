@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
 
-public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class TitlesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	OnTitleSelected mOnTitleSelectedCallback;
 
@@ -27,35 +27,35 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 		public void OnArticleSelected(long itemID);
 	}
 
-	private ItemsCursorAdaptor mItemsCursorAdaptor;
-	private ListView mItemsListView;
-	private TextView mEmptyView;
+	private TitlesCursorAdaptor mItemsCursorAdaptor;
+	private ListView mTitlesListView;
+	private TextView tvEmptyFragTitles;
 
 	private int ITEMS_LOADER_ID = 1;
 	private LoaderManager mLoaderManager = null;
-	private LoaderManager.LoaderCallbacks<Cursor> mItemsFragmentCallbacks;
+	private LoaderManager.LoaderCallbacks<Cursor> mTitlesFragmentCallbacks;
 
-	public ItemsFragment() {
+	public TitlesFragment() {
 		// Empty constructor
 	}
 
-	public static ItemsFragment newInstance() {
-		ItemsFragment f = new ItemsFragment();
+	public static TitlesFragment newInstance() {
+		TitlesFragment f = new TitlesFragment();
 		return f;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		MyLog.i("ItemsFragment", "onActivityCreated()");
+		MyLog.i("TitlesFragment", "onActivityCreated()");
 		mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(ITEMS_LOADER_ID, null, mItemsFragmentCallbacks);
+		mLoaderManager.initLoader(ITEMS_LOADER_ID, null, mTitlesFragmentCallbacks);
 
 		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
 	public void onAttach(Activity activity) {
-		MyLog.i("ItemsFragment", "onAttach()");
+		MyLog.i("TitlesFragment", "onAttach()");
 		super.onAttach(activity);
 
 		// This makes sure that the container activity has implemented
@@ -69,17 +69,17 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		MyLog.i("ItemsFragment", "onCreateView()");
+		MyLog.i("TitlesFragment", "onCreateView()");
 
 		View view = inflater.inflate(R.layout.frag_titles_list, container, false);
 
-		mItemsListView = (ListView) view.findViewById(R.id.itemsListView);
-		if (mItemsListView != null) {
-			mItemsCursorAdaptor = new ItemsCursorAdaptor(getActivity(), null, 0);
-			mItemsListView.setAdapter(mItemsCursorAdaptor);
+		mTitlesListView = (ListView) view.findViewById(R.id.itemsListView);
+		if (mTitlesListView != null) {
+			mItemsCursorAdaptor = new TitlesCursorAdaptor(getActivity(), null, 0);
+			mTitlesListView.setAdapter(mItemsCursorAdaptor);
 		}
 
-		mItemsListView.setOnItemClickListener(new OnItemClickListener() {
+		mTitlesListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View v, int position, long itemID) {
@@ -87,58 +87,58 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 			}
 		});
 
-		mEmptyView = (TextView) view.findViewById(R.id.tvEmpty);
+		tvEmptyFragTitles = (TextView) view.findViewById(R.id.tvEmptyFragTitles);
 
-		mItemsFragmentCallbacks = this;
+		mTitlesFragmentCallbacks = this;
 
 		return view;
 	}
 
 	@Override
 	public void onDestroy() {
-		MyLog.i("ItemsFragment", "onDestroy()");
+		MyLog.i("TitlesFragment", "onDestroy()");
 		super.onDestroy();
 	}
 
 	@Override
 	public void onDestroyView() {
-		MyLog.i("ItemsFragment", "onDestroyView()");
+		MyLog.i("TitlesFragment", "onDestroyView()");
 		super.onDestroyView();
 	}
 
 	@Override
 	public void onDetach() {
-		MyLog.i("ItemsFragment", "onDetach()");
+		MyLog.i("TitlesFragment", "onDetach()");
 		super.onDetach();
 	}
 
 	@Override
 	public void onPause() {
-		MyLog.i("ItemsFragment", "onPause()");
+		MyLog.i("TitlesFragment", "onPause()");
 		super.onPause();
 	}
 
 	@Override
 	public void onResume() {
-		MyLog.i("ItemsFragment", "onResume()");
+		MyLog.i("TitlesFragment", "onResume()");
 		super.onResume();
 	}
 
 	@Override
 	public void onStart() {
-		MyLog.i("ItemsFragment", "onStart()");
+		MyLog.i("TitlesFragment", "onStart()");
 		super.onStart();
 	}
 
 	@Override
 	public void onStop() {
-		MyLog.i("ItemsFragment", "onStop()");
+		MyLog.i("TitlesFragment", "onStop()");
 		super.onStop();
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		MyLog.i("ItemsFragment", "onCreateLoader(): LoaderId = " + id);
+		MyLog.i("TitlesFragment", "onCreateLoader(): LoaderId = " + id);
 		CursorLoader cursorLoader = ItemsTable.getAllItems(getActivity(), ItemsTable.SORT_ORDER_ITEM_TITLE);
 		return cursorLoader;
 	}
@@ -146,21 +146,21 @@ public class ItemsFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor newCursor) {
 		int id = loader.getId();
-		MyLog.i("ItemsFragment", "onLoadFinished: LoaderID = " + id);
+		MyLog.i("TitlesFragment", "onLoadFinished: LoaderID = " + id);
 		mItemsCursorAdaptor.swapCursor(newCursor);
 		if (newCursor != null && newCursor.getCount() > 0) {
-			mItemsListView.setVisibility(View.VISIBLE);
-			mEmptyView.setVisibility(View.GONE);
+			mTitlesListView.setVisibility(View.VISIBLE);
+			tvEmptyFragTitles.setVisibility(View.GONE);
 		} else {
-			mItemsListView.setVisibility(View.GONE);
-			mEmptyView.setVisibility(View.VISIBLE);
+			mTitlesListView.setVisibility(View.GONE);
+			tvEmptyFragTitles.setVisibility(View.VISIBLE);
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		int id = loader.getId();
-		MyLog.i("ItemsFragment", "onLoaderReset: LoaderID = " + id);
+		MyLog.i("TitlesFragment", "onLoaderReset: LoaderID = " + id);
 		mItemsCursorAdaptor.swapCursor(null);
 	}
 

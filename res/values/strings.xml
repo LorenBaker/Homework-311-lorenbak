@@ -10,7 +10,7 @@
 	<string name="action_refresh_text">Refresh</string>
 	<string name="action_discardItems_text">Discard Items</string>
 	<string name="action_acceptItems_text">Uncheck Items</string>
-	<string name="tvEmpty_text">Shake to refresh data.</string>
+	<string name="tvEmptyFragTitles_text">Shake to refresh data.</string>
 	<string name="tvEmptyFragDetails_text">No article selected.</string>
 
 </resources>

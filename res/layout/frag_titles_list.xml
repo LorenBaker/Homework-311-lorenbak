@@ -11,11 +11,11 @@
 	</ListView>
 
 	<TextView
-		android:id="@+id/tvEmpty"
+		android:id="@+id/tvEmptyFragTitles"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:gravity="center"
-		android:text="@string/tvEmpty_text"
+		android:text="@string/tvEmptyFragTitles_text"
 		android:textSize="28sp"
 		android:textStyle="bold|italic"
 		android:visibility="gone" />
