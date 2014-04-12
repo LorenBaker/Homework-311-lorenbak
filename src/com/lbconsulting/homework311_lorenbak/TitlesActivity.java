@@ -5,37 +5,51 @@ import java.io.InputStream;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.lbconsulting.homework311_lorenbak.TitlesFragment.OnTitleSelected;
 
-public class TitlesActivity extends FragmentActivity implements OnTitleSelected {
+public class TitlesActivity extends FragmentActivity implements OnTitleSelected, SensorEventListener {
 
 	private TitlesFragment mTitlesFragment;
 	private DetailsFragment mDetailsFragment;
-	private long mActiveItemID;
+	private long mActiveArticleID;
 	private Boolean mTwoFragmentLayout = false;
+
+	private SensorManager mSensorManager;
+	private Sensor mAccelerometerSensor;
+	private float mPrevious_forceX = 0;
+	private float mPrevious_forceY = 0;
+	private float mPrevious_forceZ = 0;
+	private long mPrevious_time = System.currentTimeMillis();
 
 	private String DATA_FILENAME = "HRD311_data.xml";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		MyLog.i("Main_ACTIVITY", "onCreate()");
+		MyLog.i("Titles_ACTIVITY", "onCreate()");
 		setContentView(R.layout.activity_main);
 
 		View frag_details_placeholder = this.findViewById(R.id.frag_details_placeholder);
 		mTwoFragmentLayout = frag_details_placeholder != null
 				&& frag_details_placeholder.getVisibility() == View.VISIBLE;
+
+		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 	}
 
@@ -46,7 +60,7 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 			if (mTitlesFragment == null) {
 				// create TitlesFragment
 				mTitlesFragment = TitlesFragment.newInstance();
-				MyLog.i("Main_ACTIVITY", "LoadTitlesFragment():NewInstance");
+				MyLog.i("Titles_ACTIVITY", "LoadTitlesFragment():NewInstance");
 
 				// add the fragment to the Activity
 				this.getSupportFragmentManager().beginTransaction()
@@ -71,8 +85,8 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 		mDetailsFragment = (DetailsFragment) this.getSupportFragmentManager().findFragmentByTag("DetailsFragment");
 		if (mDetailsFragment == null) {
 			// create DetailsFragment
-			mDetailsFragment = DetailsFragment.newInstance(mActiveItemID);
-			MyLog.i("Main_ACTIVITY", "LoadItemsDetailsFragment():NewInstance: itmeID=" + mActiveItemID);
+			mDetailsFragment = DetailsFragment.newInstance(mActiveArticleID);
+			MyLog.i("Titles_ACTIVITY", "LoadItemsDetailsFragment():NewInstance: itmeID=" + mActiveArticleID);
 
 			// add the fragment to the Activity
 			this.getSupportFragmentManager().beginTransaction()
@@ -81,7 +95,7 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 					.commit();
 		} else {
 			// mDetailsFragment exists ... so replace it
-			mDetailsFragment = DetailsFragment.newInstance(mActiveItemID);
+			mDetailsFragment = DetailsFragment.newInstance(mActiveArticleID);
 			// add the fragment to the Activity
 			this.getSupportFragmentManager().beginTransaction()
 					.replace(R.id.frag_details_placeholder, mDetailsFragment, "DetailsFragment")
@@ -93,20 +107,23 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 
 	@Override
 	protected void onPause() {
-		MyLog.i("Main_ACTIVITY", "onPause()");
+		MyLog.i("Titles_ACTIVITY", "onPause()");
+		mSensorManager.unregisterListener(this);
 
 		SharedPreferences preferences = getSharedPreferences("HW311", MODE_PRIVATE);
 		SharedPreferences.Editor applicationStates = preferences.edit();
-		applicationStates.putLong("ActiveItemID", mActiveItemID);
+		applicationStates.putLong("ActiveItemID", mActiveArticleID);
 		applicationStates.commit();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
-		MyLog.i("Main_ACTIVITY", "onResume()");
+		MyLog.i("Titles_ACTIVITY", "onResume()");
 		SharedPreferences storedStates = getSharedPreferences("HW311", MODE_PRIVATE);
-		mActiveItemID = storedStates.getLong("ActiveItemID", -1);
+		mActiveArticleID = storedStates.getLong("ActiveItemID", -1);
+
+		mSensorManager.registerListener(this, mAccelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 		LoadTitlesFragment();
 		if (mTwoFragmentLayout) {
@@ -117,35 +134,40 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MyLog.i("Main_ACTIVITY", "onCreateOptionsMenu()");
+		MyLog.i("Titles_ACTIVITY", "onCreateOptionsMenu()");
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		// handle item selection
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+
 		switch (item.getItemId()) {
+
+		/*			case R.id.action_discardItems:
+						Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
+								Toast.LENGTH_SHORT).show();
+						DiscardItems();
+						return true;*/
+
 			case R.id.action_refresh:
 				RefreshItems();
 				return true;
 
-			case R.id.action_discardItems:
-				Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
-						Toast.LENGTH_SHORT).show();
-				DiscardItems();
-				return true;
-
-			case R.id.action_acceptItems:
-				Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
-						Toast.LENGTH_SHORT).show();
-				AcceptItems();
-				return true;
+				/*			case R.id.action_acceptItems:
+								Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
+										Toast.LENGTH_SHORT).show();
+								AcceptItems();
+								return true;*/
 
 			default:
-				return super.onMenuItemSelected(featureId, item);
+				return super.onOptionsItemSelected(item);
 		}
+
 	}
 
 	private void DiscardItems() {
@@ -158,22 +180,25 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 
 	}
 
+	@SuppressWarnings("resource")
 	private void RefreshItems() {
+
+		/*		Toast.makeText(this, "\"" + "Refresh" + "\"" + " is under construction.",
+						Toast.LENGTH_SHORT).show();*/
+
 		AssetManager assetManager = getAssets();
 		InputStream input = null;
 		try {
 			input = assetManager.open(DATA_FILENAME);
-			ItemsParser.parse(this, input);
-			if (input != null) {
-				input.close();
-			}
+			ArticlesParser.parse(this, input);
+			input.close();
 
 		} catch (IOException e) {
-			MyLog.e("Main_ACTIVITY", "RefreshItems(): IOException opening " + DATA_FILENAME);
+			MyLog.e("Titles_ACTIVITY", "RefreshItems(): IOException opening " + DATA_FILENAME);
 			e.printStackTrace();
 
 		} catch (XmlPullParserException e) {
-			MyLog.e("Main_ACTIVITY", "RefreshItems(): XmlPullParserException parsing " + DATA_FILENAME);
+			MyLog.e("Titles_ACTIVITY", "RefreshItems(): XmlPullParserException parsing " + DATA_FILENAME);
 			e.printStackTrace();
 		}
 
@@ -181,32 +206,32 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 
 	@Override
 	protected void onStart() {
-		MyLog.i("Main_ACTIVITY", "onStart()");
+		MyLog.i("Titles_ACTIVITY", "onStart()");
 		super.onStart();
 	}
 
 	@Override
 	protected void onStop() {
-		MyLog.i("Main_ACTIVITY", "onStop()");
+		MyLog.i("Titles_ACTIVITY", "onStop()");
 		super.onStop();
 	}
 
 	@Override
 	protected void onRestart() {
-		MyLog.i("Main_ACTIVITY", " onRestart()");
+		MyLog.i("Titles_ACTIVITY", " onRestart()");
 		super.onRestart();
 	}
 
 	@Override
 	protected void onDestroy() {
-		MyLog.i("Main_ACTIVITY", "onDestroy()");
+		MyLog.i("Titles_ACTIVITY", "onDestroy()");
 		super.onDestroy();
 	}
 
 	@Override
-	public void OnArticleSelected(long itemID) {
-		if (itemID > 0) {
-			mActiveItemID = itemID;
+	public void OnArticleSelected(long articleID) {
+		if (articleID > 0) {
+			mActiveArticleID = articleID;
 			if (mTwoFragmentLayout) {
 				LoadItemsDetailsFragment();
 			} else {
@@ -217,7 +242,43 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected 
 
 	private void StartDetailsActivity() {
 		Intent detailsActivityIntent = new Intent(this, DetailsActivity.class);
-		detailsActivityIntent.putExtra("ActiveItemID", mActiveItemID);
+		detailsActivityIntent.putExtra("ActiveArticleID", mActiveArticleID);
 		startActivity(detailsActivityIntent);
 	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// not used
+
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor == mAccelerometerSensor) {
+
+			long curTime = System.currentTimeMillis();
+			long diffTime = (curTime - mPrevious_time);
+			if (diffTime > 100) {
+
+				float forceX = event.values[0];
+				float forceY = event.values[1];
+				float forceZ = event.values[2];
+
+				float shakeEventStrength =
+						Math.abs((forceX - mPrevious_forceX) + (forceY - mPrevious_forceY)
+								+ (forceZ - mPrevious_forceZ)) / diffTime * 1000;
+
+				if (shakeEventStrength > 150) {
+					RefreshItems();
+				}
+
+				mPrevious_forceX = forceX;
+				mPrevious_forceY = forceY;
+				mPrevious_forceZ = forceZ;
+				mPrevious_time = curTime;
+			}
+
+		}
+	}
+
 }

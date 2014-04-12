@@ -3,6 +3,7 @@
 	android:id="@+id/titleLinearLayout"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:descendantFocusability="blocksDescendants"
 	android:gravity="center"
 	android:orientation="horizontal"
 	android:padding="5dp" >

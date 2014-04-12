@@ -1,7 +1,6 @@
 package com.lbconsulting.homework311_lorenbak.database;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashSet;
 
 import android.content.ContentProvider;
@@ -30,8 +29,8 @@ public class HW311ContentProvider extends ContentProvider {
 
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	static {
-		sURIMatcher.addURI(AUTHORITY, ItemsTable.CONTENT_PATH, ITEMS_MULTI_ROWS);
-		sURIMatcher.addURI(AUTHORITY, ItemsTable.CONTENT_PATH + "/#", ITEMS_SINGLE_ROW);
+		sURIMatcher.addURI(AUTHORITY, ArticlesTable.CONTENT_PATH, ITEMS_MULTI_ROWS);
+		sURIMatcher.addURI(AUTHORITY, ArticlesTable.CONTENT_PATH + "/#", ITEMS_SINGLE_ROW);
 	}
 
 	@Override
@@ -67,16 +66,16 @@ public class HW311ContentProvider extends ContentProvider {
 				}
 
 				// Perform the deletion
-				deleteCount = db.delete(ItemsTable.TABLE_ITEMS, selection, selectionArgs);
+				deleteCount = db.delete(ArticlesTable.TABLE_ARTICLES, selection, selectionArgs);
 				break;
 
 			case ITEMS_SINGLE_ROW:
 				// Limit deletion to a single row
 				rowID = uri.getLastPathSegment();
-				selection = ItemsTable.COL_ITEM_ID + "=" + rowID
+				selection = ArticlesTable.COL_ARTICLE_ID + "=" + rowID
 						+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : "");
 				// Perform the deletion
-				deleteCount = db.delete(ItemsTable.TABLE_ITEMS, selection, selectionArgs);
+				deleteCount = db.delete(ArticlesTable.TABLE_ARTICLES, selection, selectionArgs);
 				break;
 
 			default:
@@ -92,9 +91,9 @@ public class HW311ContentProvider extends ContentProvider {
 		int uriType = sURIMatcher.match(uri);
 		switch (uriType) {
 			case ITEMS_MULTI_ROWS:
-				return ItemsTable.CONTENT_TYPE;
+				return ArticlesTable.CONTENT_TYPE;
 			case ITEMS_SINGLE_ROW:
-				return ItemsTable.CONTENT_ITEM_TYPE;
+				return ArticlesTable.CONTENT_ITEM_TYPE;
 
 			default:
 				throw new IllegalArgumentException("Method getType. Unknown URI: " + uri);
@@ -115,12 +114,11 @@ public class HW311ContentProvider extends ContentProvider {
 		int uriType = sURIMatcher.match(uri);
 		switch (uriType) {
 			case ITEMS_MULTI_ROWS:
-				values.put(ItemsTable.COL_REFRESH_DATE_TIME, Calendar.getInstance().getTimeInMillis());
-				newRowId = db.insertOrThrow(ItemsTable.TABLE_ITEMS, nullColumnHack, values);
+				newRowId = db.insertOrThrow(ArticlesTable.TABLE_ARTICLES, nullColumnHack, values);
 				if (newRowId > 0) {
 					// Construct and return the URI of the newly inserted row.
-					Uri newRowUri = ContentUris.withAppendedId(ItemsTable.CONTENT_URI, newRowId);
-					getContext().getContentResolver().notifyChange(ItemsTable.CONTENT_URI, null);
+					Uri newRowUri = ContentUris.withAppendedId(ArticlesTable.CONTENT_URI, newRowId);
+					getContext().getContentResolver().notifyChange(ArticlesTable.CONTENT_URI, null);
 					return newRowUri;
 				}
 				return null;
@@ -144,14 +142,14 @@ public class HW311ContentProvider extends ContentProvider {
 		int uriType = sURIMatcher.match(uri);
 		switch (uriType) {
 			case ITEMS_MULTI_ROWS:
-				queryBuilder.setTables(ItemsTable.TABLE_ITEMS);
+				queryBuilder.setTables(ArticlesTable.TABLE_ARTICLES);
 				checkItemsColumnNames(projection);
 				break;
 
 			case ITEMS_SINGLE_ROW:
-				queryBuilder.setTables(ItemsTable.TABLE_ITEMS);
+				queryBuilder.setTables(ArticlesTable.TABLE_ARTICLES);
 				checkItemsColumnNames(projection);
-				queryBuilder.appendWhere(ItemsTable.COL_ITEM_ID + "=" + uri.getLastPathSegment());
+				queryBuilder.appendWhere(ArticlesTable.COL_ARTICLE_ID + "=" + uri.getLastPathSegment());
 				break;
 
 			default:
@@ -197,19 +195,17 @@ public class HW311ContentProvider extends ContentProvider {
 		int uriType = sURIMatcher.match(uri);
 		switch (uriType) {
 			case ITEMS_MULTI_ROWS:
-				values.put(ItemsTable.COL_REFRESH_DATE_TIME, Calendar.getInstance().getTimeInMillis());
-				updateCount = db.update(ItemsTable.TABLE_ITEMS, values, selection, selectionArgs);
+				updateCount = db.update(ArticlesTable.TABLE_ARTICLES, values, selection, selectionArgs);
 				break;
 
 			case ITEMS_SINGLE_ROW:
 				// Limit update to a single row
 				rowID = uri.getLastPathSegment();
-				selection = ItemsTable.COL_ITEM_ID + "=" + rowID
+				selection = ArticlesTable.COL_ARTICLE_ID + "=" + rowID
 						+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : "");
-				values.put(ItemsTable.COL_REFRESH_DATE_TIME, Calendar.getInstance().getTimeInMillis());
 
 				// Perform the update
-				updateCount = db.update(ItemsTable.TABLE_ITEMS, values, selection, selectionArgs);
+				updateCount = db.update(ArticlesTable.TABLE_ARTICLES, values, selection, selectionArgs);
 				break;
 
 			default:
@@ -224,7 +220,7 @@ public class HW311ContentProvider extends ContentProvider {
 		// Check if the caller has requested a column that does not exist
 		if (projection != null) {
 			HashSet<String> requstedColumns = new HashSet<String>(Arrays.asList(projection));
-			HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(ItemsTable.PROJECTION_ALL));
+			HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(ArticlesTable.PROJECTION_ALL));
 
 			// Check if all columns which are requested are available
 			if (!availableColumns.containsAll(requstedColumns)) {

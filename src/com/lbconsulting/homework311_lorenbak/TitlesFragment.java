@@ -7,15 +7,21 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
+import com.lbconsulting.homework311_lorenbak.database.ArticlesTable;
 
 public class TitlesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -47,6 +53,7 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.i("TitlesFragment", "onActivityCreated()");
+
 		mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(ITEMS_LOADER_ID, null, mTitlesFragmentCallbacks);
 
@@ -77,16 +84,80 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 		if (mTitlesListView != null) {
 			mItemsCursorAdaptor = new TitlesCursorAdaptor(getActivity(), null, 0);
 			mTitlesListView.setAdapter(mItemsCursorAdaptor);
+
+			mTitlesListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+
+			mTitlesListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+
+				private int nr = 0;
+
+				@Override
+				public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+					// Do nothing
+					return false;
+				}
+
+				@Override
+				public void onDestroyActionMode(ActionMode mode) {
+					ArticlesTable.DeselectAllSelectedArticles(getActivity());
+				}
+
+				@Override
+				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+					nr = 0;
+					MenuInflater contextMenueInflater = getActivity().getMenuInflater();
+					contextMenueInflater.inflate(R.menu.contextual_menu, menu);
+					return true;
+				}
+
+				@Override
+				public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+					switch (item.getItemId()) {
+
+						case R.id.item_delete:
+							nr = 0;
+							ArticlesTable.DeleteAllSelectedArticles(getActivity());
+							mode.finish();
+							break;
+
+						default:
+							break;
+					}
+					return false;
+				}
+
+				@Override
+				public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+					if (checked) {
+						nr++;
+					} else {
+						nr--;
+					}
+					ArticlesTable.setArticleSelection(getActivity(), id, checked);
+					mode.setTitle(nr + " selected");
+
+				}
+
+			});
+
+			mTitlesListView.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View v, int position, long itemID) {
+					mOnTitleSelectedCallback.OnArticleSelected(itemID);
+				}
+			});
+
+			mTitlesListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+				@Override
+				public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long articleID) {
+					mTitlesListView.setItemChecked(position, !ArticlesTable.isArticleSelected(getActivity(), articleID));
+					return false;
+				}
+			});
+
 		}
-
-		mTitlesListView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View v, int position, long itemID) {
-				mOnTitleSelectedCallback.OnArticleSelected(itemID);
-			}
-		});
-
 		tvEmptyFragTitles = (TextView) view.findViewById(R.id.tvEmptyFragTitles);
 
 		mTitlesFragmentCallbacks = this;
@@ -139,7 +210,7 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		MyLog.i("TitlesFragment", "onCreateLoader(): LoaderId = " + id);
-		CursorLoader cursorLoader = ItemsTable.getAllItems(getActivity(), ItemsTable.SORT_ORDER_ITEM_TITLE);
+		CursorLoader cursorLoader = ArticlesTable.getAllItems(getActivity(), ArticlesTable.SORT_ORDER_ARTICLE_TITLE);
 		return cursorLoader;
 	}
 

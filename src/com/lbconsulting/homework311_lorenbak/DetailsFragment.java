@@ -10,11 +10,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
+import com.lbconsulting.homework311_lorenbak.database.ArticlesTable;
 
 public class DetailsFragment extends Fragment {
 
-	private long mActiveItemID;
+	private long mActiveArticleID;
 	private LinearLayout fragDetailsLinearLayout;
 	private TextView tvEmptyFragDetails;
 
@@ -22,11 +22,11 @@ public class DetailsFragment extends Fragment {
 		// Empty constructor
 	}
 
-	public static DetailsFragment newInstance(long itemID) {
+	public static DetailsFragment newInstance(long articleID) {
 		DetailsFragment f = new DetailsFragment();
-		// Supply itemID input as an argument.
+		// Supply articleID input as an argument.
 		Bundle args = new Bundle();
-		args.putLong("itemID", itemID);
+		args.putLong("articleID", articleID);
 		f.setArguments(args);
 		return f;
 	}
@@ -47,20 +47,20 @@ public class DetailsFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.i("DetailsFragment", "onCreateView()");
 
-		if (savedInstanceState != null && savedInstanceState.containsKey("itemID")) {
-			mActiveItemID = savedInstanceState.getLong("itemID", 0);
+		if (savedInstanceState != null && savedInstanceState.containsKey("articleID")) {
+			mActiveArticleID = savedInstanceState.getLong("articleID", 0);
 		} else {
 			Bundle bundle = getArguments();
 			if (bundle != null)
-				mActiveItemID = bundle.getLong("itemID", 0);
+				mActiveArticleID = bundle.getLong("articleID", 0);
 		}
 
 		View view = inflater.inflate(R.layout.frag_details, container, false);
 		fragDetailsLinearLayout = (LinearLayout) view.findViewById(R.id.fragDetailsLinearLayout);
 		tvEmptyFragDetails = (TextView) view.findViewById(R.id.tvEmptyFragDetails);
 
-		if (mActiveItemID > 0) {
-			Cursor cursor = ItemsTable.getItem(getActivity(), mActiveItemID);
+		if (mActiveArticleID > 0) {
+			Cursor cursor = ArticlesTable.getArticle(getActivity(), mActiveArticleID);
 
 			if (fragDetailsLinearLayout != null) {
 				fragDetailsLinearLayout.setVisibility(View.VISIBLE);
@@ -73,23 +73,25 @@ public class DetailsFragment extends Fragment {
 				cursor.moveToFirst();
 				TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
 				if (tvTitle != null) {
-					String title = cursor.getString(cursor.getColumnIndexOrThrow(ItemsTable.COL_ITEM_TITLE));
+					String title = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesTable.COL_ARTICLE_TITLE));
 					tvTitle.setText(title);
 				}
 
 				TextView tvTitleIcon = (TextView) view.findViewById(R.id.tvTitleIcon);
 				if (tvTitleIcon != null) {
 					String firstLetterInTitle = cursor.getString(cursor
-							.getColumnIndexOrThrow(ItemsTable.COL_FIRST_LETTER_IN_TITLE));
+							.getColumnIndexOrThrow(ArticlesTable.COL_FIRST_LETTER_IN_TITLE));
 					tvTitleIcon.setText(firstLetterInTitle);
 				}
 
 				TextView tvContent = (TextView) view.findViewById(R.id.tvContent);
 
 				if (tvContent != null) {
-					String content = cursor.getString(cursor.getColumnIndexOrThrow(ItemsTable.COL_ITEM_CONTENT));
+					String content = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesTable.COL_ARTICLE_CONTENT));
 					tvContent.setText(content);
 				}
+
+				ArticlesTable.setArticleAsRead(getActivity(), mActiveArticleID); // set Article as read.
 
 			}
 
@@ -112,7 +114,7 @@ public class DetailsFragment extends Fragment {
 	public void onSaveInstanceState(Bundle outState) {
 		MyLog.i("DetailsFragment", "onSaveInstanceState()");
 		// Store our listID
-		outState.putLong("itemID", mActiveItemID);
+		outState.putLong("articleID", mActiveArticleID);
 		super.onSaveInstanceState(outState);
 	}
 

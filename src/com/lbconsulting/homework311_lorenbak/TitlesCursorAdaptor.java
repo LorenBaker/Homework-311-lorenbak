@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
+import com.lbconsulting.homework311_lorenbak.database.ArticlesTable;
 
 public class TitlesCursorAdaptor extends CursorAdapter {
 
@@ -18,20 +18,39 @@ public class TitlesCursorAdaptor extends CursorAdapter {
 	}
 
 	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
+	public void bindView(View view, final Context context, final Cursor cursor) {
 		if (cursor != null && view != null) {
 			TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
 			if (tvTitle != null) {
-				String title = cursor.getString(cursor.getColumnIndexOrThrow(ItemsTable.COL_ITEM_TITLE));
+				String title = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesTable.COL_ARTICLE_TITLE));
 				tvTitle.setText(title);
 			}
 
 			TextView tvTitleIcon = (TextView) view.findViewById(R.id.tvTitleIcon);
 			if (tvTitleIcon != null) {
 				String firstLetterInTitle = cursor.getString(cursor
-						.getColumnIndexOrThrow(ItemsTable.COL_FIRST_LETTER_IN_TITLE));
+						.getColumnIndexOrThrow(ArticlesTable.COL_FIRST_LETTER_IN_TITLE));
 				tvTitleIcon.setText(firstLetterInTitle);
 			}
+
+			long articleID = cursor.getLong(cursor.getColumnIndexOrThrow(ArticlesTable.COL_ARTICLE_ID));
+			boolean isArticleSelected = ArticlesTable.isArticleSelected(context, articleID);
+			boolean isArticleRead = ArticlesTable.isArticleRead(context, articleID);
+
+			if (isArticleRead) {
+				// view.setBackground(context.getResources().getDrawable(R.drawable.read_rectangle_black_stroke));
+				view.setBackgroundColor(context.getResources().getColor(R.color.greyLight3));
+
+			} else {
+				// view.setBackground(context.getResources().getDrawable(R.drawable.default_rectangle_no_stroke));
+				view.setBackgroundColor(context.getResources().getColor(android.R.color.background_light));
+			}
+
+			if (isArticleSelected) {
+				// view.setBackground(context.getResources().getDrawable(R.drawable.selected_rectangle_red_stroke));
+				view.setBackgroundColor(context.getResources().getColor(R.color.blueLight));
+			}
+
 		}
 	}
 

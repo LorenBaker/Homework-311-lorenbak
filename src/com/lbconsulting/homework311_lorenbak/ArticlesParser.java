@@ -9,9 +9,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.util.Xml;
 
-import com.lbconsulting.homework311_lorenbak.database.ItemsTable;
+import com.lbconsulting.homework311_lorenbak.database.ArticlesTable;
 
-public class ItemsParser {
+public class ArticlesParser {
 
 	public final static String TAG_ARTICLES = "articles";
 	public final static String TAG_ITEM = "item";
@@ -55,8 +55,8 @@ public class ItemsParser {
 
 	private static void RreadItemData(XmlPullParser parser) throws XmlPullParserException, IOException {
 		parser.require(XmlPullParser.START_TAG, ns, TAG_ITEM);
-		String title = "";
-		String content = "";
+		String title = null;
+		String content = null;
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -76,8 +76,8 @@ public class ItemsParser {
 			}
 		}
 
-		if (!title.isEmpty()) {
-			ItemsTable.CreateItem(mContext, title, content);
+		if (title != null && !title.isEmpty()) {
+			ArticlesTable.CreateArticle(mContext, title, content);
 		}
 
 	}
@@ -102,7 +102,7 @@ public class ItemsParser {
 	}
 
 	private static String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
-		String result = "";
+		String result = null;
 		if (parser.next() == XmlPullParser.TEXT) {
 			result = parser.getText();
 			parser.nextTag();

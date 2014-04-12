@@ -22,13 +22,13 @@ public class HW311DatabaseHelper extends SQLiteOpenHelper {
 		HW311DatabaseHelper.dBase = database;
 
 		MyLog.i("HW311DatabaseHelper", "onCreate");
-		ItemsTable.onCreate(database);
+		ArticlesTable.onCreate(database);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
 		MyLog.i("HW311DatabaseHelper", "onUpgrade");
-		ItemsTable.onUpgrade(database, oldVersion, newVersion);
+		ArticlesTable.onUpgrade(database, oldVersion, newVersion);
 	}
 
 	public static SQLiteDatabase getDatabase() {
