@@ -1,14 +1,8 @@
 package com.lbconsulting.homework311_lorenbak;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -50,7 +44,6 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
 	}
 
 	private void LoadTitlesFragment() {
@@ -76,9 +69,7 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 						.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
 						.commit();
 			}
-
 		}
-
 	}
 
 	private void LoadItemsDetailsFragment() {
@@ -102,7 +93,6 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
 					.commit();
 		}
-
 	}
 
 	@Override
@@ -148,21 +138,9 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 
 		switch (item.getItemId()) {
 
-		/*			case R.id.action_discardItems:
-						Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
-								Toast.LENGTH_SHORT).show();
-						DiscardItems();
-						return true;*/
-
 			case R.id.action_refresh:
-				RefreshItems();
+				mTitlesFragment.LoadArticles(DATA_FILENAME);
 				return true;
-
-				/*			case R.id.action_acceptItems:
-								Toast.makeText(this, "\"" + item.getTitle() + "\"" + " is under construction.",
-										Toast.LENGTH_SHORT).show();
-								AcceptItems();
-								return true;*/
 
 			default:
 				return super.onOptionsItemSelected(item);
@@ -170,39 +148,25 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 
 	}
 
-	private void DiscardItems() {
-		// TODO Auto-generated method stub
+	/*
+		@SuppressWarnings("resource")
+		private void RefreshArticles() {
+			AssetManager assetManager = getAssets();
+			InputStream input = null;
+			try {
+				input = assetManager.open(DATA_FILENAME);
+				ArticlesParser.parse(this, input);
+				input.close();
 
-	}
+			} catch (IOException e) {
+				MyLog.e("Titles_ACTIVITY", "RefreshArticles(): IOException opening " + DATA_FILENAME);
+				e.printStackTrace();
 
-	private void AcceptItems() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@SuppressWarnings("resource")
-	private void RefreshItems() {
-
-		/*		Toast.makeText(this, "\"" + "Refresh" + "\"" + " is under construction.",
-						Toast.LENGTH_SHORT).show();*/
-
-		AssetManager assetManager = getAssets();
-		InputStream input = null;
-		try {
-			input = assetManager.open(DATA_FILENAME);
-			ArticlesParser.parse(this, input);
-			input.close();
-
-		} catch (IOException e) {
-			MyLog.e("Titles_ACTIVITY", "RefreshItems(): IOException opening " + DATA_FILENAME);
-			e.printStackTrace();
-
-		} catch (XmlPullParserException e) {
-			MyLog.e("Titles_ACTIVITY", "RefreshItems(): XmlPullParserException parsing " + DATA_FILENAME);
-			e.printStackTrace();
-		}
-
-	}
+			} catch (XmlPullParserException e) {
+				MyLog.e("Titles_ACTIVITY", "RefreshArticles(): XmlPullParserException parsing " + DATA_FILENAME);
+				e.printStackTrace();
+			}
+		}*/
 
 	@Override
 	protected void onStart() {
@@ -269,7 +233,7 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 								+ (forceZ - mPrevious_forceZ)) / diffTime * 1000;
 
 				if (shakeEventStrength > 150) {
-					RefreshItems();
+					mTitlesFragment.LoadArticles(DATA_FILENAME);
 				}
 
 				mPrevious_forceX = forceX;
@@ -277,8 +241,6 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 				mPrevious_forceZ = forceZ;
 				mPrevious_time = curTime;
 			}
-
 		}
 	}
-
 }

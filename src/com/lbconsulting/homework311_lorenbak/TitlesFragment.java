@@ -1,7 +1,14 @@
 package com.lbconsulting.homework311_lorenbak;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -35,7 +42,10 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 	private TitlesCursorAdaptor mItemsCursorAdaptor;
 	private ListView mTitlesListView;
+	private TextProgressBar pbLoadingIndicator;
 	private TextView tvEmptyFragTitles;
+
+	/*	private String mDataFilename;*/
 
 	private int ITEMS_LOADER_ID = 1;
 	private LoaderManager mLoaderManager = null;
@@ -47,12 +57,21 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 	public static TitlesFragment newInstance() {
 		TitlesFragment f = new TitlesFragment();
+		// Supply dataFilename input as an argument.
+		/*				Bundle args = new Bundle();
+						args.putString("dataFilename", dataFilename);
+				f.setArguments(args);*/
 		return f;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.i("TitlesFragment", "onActivityCreated()");
+		/*
+				Bundle bundle = getArguments();
+				if (bundle != null) {
+					mDataFilename = bundle.getString("dataFilename");
+				}*/
 
 		mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(ITEMS_LOADER_ID, null, mTitlesFragmentCallbacks);
@@ -77,6 +96,15 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.i("TitlesFragment", "onCreateView()");
+
+		/*		if (savedInstanceState != null && savedInstanceState.containsKey("dataFilename")) {
+					mDataFilename = savedInstanceState.getString("dataFilename");
+				} else {
+					Bundle bundle = getArguments();
+					if (bundle != null) {
+						mDataFilename = bundle.getString("dataFilename");
+					}
+				}*/
 
 		View view = inflater.inflate(R.layout.frag_titles_list, container, false);
 
@@ -159,6 +187,10 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 		}
 		tvEmptyFragTitles = (TextView) view.findViewById(R.id.tvEmptyFragTitles);
+		pbLoadingIndicator = (TextProgressBar) view.findViewById(R.id.pbLoadingIndicator);
+		if (pbLoadingIndicator != null) {
+			pbLoadingIndicator.setText("Loading ...");
+		}
 
 		mTitlesFragmentCallbacks = this;
 
@@ -181,6 +213,13 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	public void onDetach() {
 		MyLog.i("TitlesFragment", "onDetach()");
 		super.onDetach();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		MyLog.i("ListsDialogFragment", "onSaveInstanceState");
+		/*outState.putString("dataFilename", mDataFilename);*/
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -233,6 +272,74 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 		int id = loader.getId();
 		MyLog.i("TitlesFragment", "onLoaderReset: LoaderID = " + id);
 		mItemsCursorAdaptor.swapCursor(null);
+	}
+
+	public void ShowLoadingIndicator() {
+
+		if (pbLoadingIndicator != null) {
+			pbLoadingIndicator.setVisibility(View.VISIBLE);
+			mTitlesListView.setVisibility(View.GONE);
+			tvEmptyFragTitles.setVisibility(View.GONE);
+		}
+	}
+
+	public void DismissLoadingIndicator() {
+
+		if (pbLoadingIndicator != null) {
+			pbLoadingIndicator.setVisibility(View.GONE);
+			mTitlesListView.setVisibility(View.VISIBLE);
+		}
+	}
+
+	public void LoadArticles(String dataFilename) {
+		new LoadArticlesTask().execute(dataFilename);
+	}
+
+	private void RefreshArticles(String dataFilename) {
+		AssetManager assetManager = getActivity().getAssets();
+		InputStream input = null;
+		try {
+			input = assetManager.open(dataFilename);
+			ArticlesParser.parse(getActivity(), input);
+			input.close();
+
+		} catch (IOException e) {
+			MyLog.e("Titles_ACTIVITY", "RefreshArticles(): IOException opening " + dataFilename);
+			e.printStackTrace();
+
+		} catch (XmlPullParserException e) {
+			MyLog.e("Titles_ACTIVITY", "RefreshArticles(): XmlPullParserException parsing " + dataFilename);
+			e.printStackTrace();
+		}
+	}
+
+	private class LoadArticlesTask extends AsyncTask<String, Void, Void> {
+
+		@Override
+		protected void onPreExecute() {
+			ShowLoadingIndicator();
+		}
+
+		@Override
+		protected Void doInBackground(String... dataFilename) {
+			// simulate a Internet download
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			RefreshArticles(dataFilename[0]);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			DismissLoadingIndicator();
+			super.onPostExecute(result);
+		}
+
 	}
 
 }
