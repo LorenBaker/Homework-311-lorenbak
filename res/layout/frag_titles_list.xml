@@ -12,14 +12,11 @@
 
 	<com.lbconsulting.homework311_lorenbak.TextProgressBar
 		android:id="@+id/pbLoadingIndicator"
-		android:layout_width="120dp"
-		android:layout_height="120dp"
+		android:layout_width="150dp"
+		android:layout_height="150dp"
 		android:layout_gravity="center"
 		android:indeterminateOnly="true"
 		android:keepScreenOn="true"
-		android:max="100"
-		android:maxHeight="100dp"
-		android:minHeight="100dp"
 		android:visibility="gone" />
 
 	<TextView

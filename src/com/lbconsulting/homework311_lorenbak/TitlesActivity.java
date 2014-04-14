@@ -148,26 +148,6 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 
 	}
 
-	/*
-		@SuppressWarnings("resource")
-		private void RefreshArticles() {
-			AssetManager assetManager = getAssets();
-			InputStream input = null;
-			try {
-				input = assetManager.open(DATA_FILENAME);
-				ArticlesParser.parse(this, input);
-				input.close();
-
-			} catch (IOException e) {
-				MyLog.e("Titles_ACTIVITY", "RefreshArticles(): IOException opening " + DATA_FILENAME);
-				e.printStackTrace();
-
-			} catch (XmlPullParserException e) {
-				MyLog.e("Titles_ACTIVITY", "RefreshArticles(): XmlPullParserException parsing " + DATA_FILENAME);
-				e.printStackTrace();
-			}
-		}*/
-
 	@Override
 	protected void onStart() {
 		MyLog.i("Titles_ACTIVITY", "onStart()");
@@ -194,11 +174,11 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 
 	@Override
 	public void OnArticleSelected(long articleID) {
-		if (articleID > 0) {
-			mActiveArticleID = articleID;
-			if (mTwoFragmentLayout) {
-				LoadItemsDetailsFragment();
-			} else {
+		mActiveArticleID = articleID;
+		if (mTwoFragmentLayout) {
+			LoadItemsDetailsFragment();
+		} else {
+			if (articleID > 0) {
 				StartDetailsActivity();
 			}
 		}
@@ -213,7 +193,6 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// not used
-
 	}
 
 	@Override

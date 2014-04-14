@@ -39,7 +39,7 @@ public class TitlesCursorAdaptor extends CursorAdapter {
 
 			if (isArticleRead) {
 				// view.setBackground(context.getResources().getDrawable(R.drawable.read_rectangle_black_stroke));
-				view.setBackgroundColor(context.getResources().getColor(R.color.greyLight3));
+				view.setBackgroundColor(context.getResources().getColor(R.color.greyLight1));
 
 			} else {
 				// view.setBackground(context.getResources().getDrawable(R.drawable.default_rectangle_no_stroke));

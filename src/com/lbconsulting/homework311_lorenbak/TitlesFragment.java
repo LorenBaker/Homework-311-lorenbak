@@ -45,8 +45,6 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	private TextProgressBar pbLoadingIndicator;
 	private TextView tvEmptyFragTitles;
 
-	/*	private String mDataFilename;*/
-
 	private int ITEMS_LOADER_ID = 1;
 	private LoaderManager mLoaderManager = null;
 	private LoaderManager.LoaderCallbacks<Cursor> mTitlesFragmentCallbacks;
@@ -57,25 +55,14 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 	public static TitlesFragment newInstance() {
 		TitlesFragment f = new TitlesFragment();
-		// Supply dataFilename input as an argument.
-		/*				Bundle args = new Bundle();
-						args.putString("dataFilename", dataFilename);
-				f.setArguments(args);*/
 		return f;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.i("TitlesFragment", "onActivityCreated()");
-		/*
-				Bundle bundle = getArguments();
-				if (bundle != null) {
-					mDataFilename = bundle.getString("dataFilename");
-				}*/
-
 		mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(ITEMS_LOADER_ID, null, mTitlesFragmentCallbacks);
-
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -96,16 +83,6 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.i("TitlesFragment", "onCreateView()");
-
-		/*		if (savedInstanceState != null && savedInstanceState.containsKey("dataFilename")) {
-					mDataFilename = savedInstanceState.getString("dataFilename");
-				} else {
-					Bundle bundle = getArguments();
-					if (bundle != null) {
-						mDataFilename = bundle.getString("dataFilename");
-					}
-				}*/
-
 		View view = inflater.inflate(R.layout.frag_titles_list, container, false);
 
 		mTitlesListView = (ListView) view.findViewById(R.id.itemsListView);
@@ -113,6 +90,7 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 			mItemsCursorAdaptor = new TitlesCursorAdaptor(getActivity(), null, 0);
 			mTitlesListView.setAdapter(mItemsCursorAdaptor);
 
+			// set the list view's contextual mode
 			mTitlesListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 
 			mTitlesListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
@@ -144,6 +122,7 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 						case R.id.item_delete:
 							nr = 0;
+							mOnTitleSelectedCallback.OnArticleSelected(0);
 							ArticlesTable.DeleteAllSelectedArticles(getActivity());
 							mode.finish();
 							break;
@@ -186,10 +165,11 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 			});
 
 		}
+
 		tvEmptyFragTitles = (TextView) view.findViewById(R.id.tvEmptyFragTitles);
 		pbLoadingIndicator = (TextProgressBar) view.findViewById(R.id.pbLoadingIndicator);
 		if (pbLoadingIndicator != null) {
-			pbLoadingIndicator.setText("Loading ...");
+			pbLoadingIndicator.setText("Loading Articles");
 		}
 
 		mTitlesFragmentCallbacks = this;
@@ -218,7 +198,6 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		MyLog.i("ListsDialogFragment", "onSaveInstanceState");
-		/*outState.putString("dataFilename", mDataFilename);*/
 		super.onSaveInstanceState(outState);
 	}
 
@@ -278,7 +257,11 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 		if (pbLoadingIndicator != null) {
 			pbLoadingIndicator.setVisibility(View.VISIBLE);
+		}
+		if (mTitlesListView != null) {
 			mTitlesListView.setVisibility(View.GONE);
+		}
+		if (tvEmptyFragTitles != null) {
 			tvEmptyFragTitles.setVisibility(View.GONE);
 		}
 	}
@@ -287,7 +270,12 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 		if (pbLoadingIndicator != null) {
 			pbLoadingIndicator.setVisibility(View.GONE);
+		}
+		if (mTitlesListView != null) {
 			mTitlesListView.setVisibility(View.VISIBLE);
+		}
+		if (tvEmptyFragTitles != null) {
+			tvEmptyFragTitles.setVisibility(View.GONE);
 		}
 	}
 
@@ -322,9 +310,9 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 		@Override
 		protected Void doInBackground(String... dataFilename) {
-			// simulate a Internet download
+			// simulate an Internet download
 			try {
-				Thread.sleep(3000);
+				Thread.sleep(3500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
