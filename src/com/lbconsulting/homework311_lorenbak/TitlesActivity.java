@@ -149,24 +149,6 @@ public class TitlesActivity extends FragmentActivity implements OnTitleSelected,
 	}
 
 	@Override
-	protected void onStart() {
-		MyLog.i("Titles_ACTIVITY", "onStart()");
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		MyLog.i("Titles_ACTIVITY", "onStop()");
-		super.onStop();
-	}
-
-	@Override
-	protected void onRestart() {
-		MyLog.i("Titles_ACTIVITY", " onRestart()");
-		super.onRestart();
-	}
-
-	@Override
 	protected void onDestroy() {
 		MyLog.i("Titles_ACTIVITY", "onDestroy()");
 		super.onDestroy();

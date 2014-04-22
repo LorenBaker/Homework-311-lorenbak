@@ -25,6 +25,8 @@ public class HW311ContentProvider extends ContentProvider {
 	private static final int ITEMS_MULTI_ROWS = 10;
 	private static final int ITEMS_SINGLE_ROW = 11;
 
+	private static boolean mSupressUpdates = false;
+
 	public static final String AUTHORITY = "com.lbconsulting.homework311_lorenbak";
 
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -41,6 +43,14 @@ public class HW311ContentProvider extends ContentProvider {
 		// a query or other transaction.
 		database = new HW311DatabaseHelper(getContext());
 		return true;
+	}
+
+	public static void setSupressUpdates(boolean suprerss) {
+		mSupressUpdates = suprerss;
+	}
+
+	public static boolean getSupressUpdates() {
+		return mSupressUpdates;
 	}
 
 	/*	A content provider is created when its hosting process is created, and remains around for as long as the process
@@ -82,7 +92,9 @@ public class HW311ContentProvider extends ContentProvider {
 				throw new IllegalArgumentException("Method delete: Unknown URI: " + uri);
 		}
 
-		getContext().getContentResolver().notifyChange(uri, null);
+		if (!mSupressUpdates) {
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
 		return deleteCount;
 	}
 
@@ -118,7 +130,10 @@ public class HW311ContentProvider extends ContentProvider {
 				if (newRowId > 0) {
 					// Construct and return the URI of the newly inserted row.
 					Uri newRowUri = ContentUris.withAppendedId(ArticlesTable.CONTENT_URI, newRowId);
-					getContext().getContentResolver().notifyChange(ArticlesTable.CONTENT_URI, null);
+
+					if (!mSupressUpdates) {
+						getContext().getContentResolver().notifyChange(ArticlesTable.CONTENT_URI, null);
+					}
 					return newRowUri;
 				}
 				return null;
@@ -212,7 +227,9 @@ public class HW311ContentProvider extends ContentProvider {
 				throw new IllegalArgumentException("Method update: Unknown URI: " + uri);
 		}
 
-		getContext().getContentResolver().notifyChange(uri, null);
+		if (!mSupressUpdates) {
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
 		return updateCount;
 	}
 

@@ -99,7 +99,6 @@ public class ArticlesTable {
 			if (newItemUri != null) {
 				newItemID = Long.parseLong(newItemUri.getLastPathSegment());
 			}
-
 		}
 		return newItemID;
 	}
@@ -169,6 +168,9 @@ public class ArticlesTable {
 			if (selectedValue == 1) {
 				result = true;
 			}
+		}
+
+		if (cursor != null) {
 			cursor.close();
 		}
 		return result;
@@ -183,6 +185,9 @@ public class ArticlesTable {
 			if (selectedValue == 1) {
 				result = true;
 			}
+		}
+
+		if (cursor != null) {
 			cursor.close();
 		}
 		return result;
@@ -222,43 +227,6 @@ public class ArticlesTable {
 			cursor.close();
 		}
 	}
-
-	/*	public static void ToggleArticleSelected(Context context, long articleID) {
-			Cursor cursor = getArticle(context, articleID);
-			if (cursor != null) {
-				cursor.moveToFirst();
-				int columnIndex = cursor.getColumnIndexOrThrow(COL_ARTICLE_SELECTED);
-				int selectedValue = cursor.getInt(columnIndex);
-
-				int newSelectedValue = -1;
-				if (selectedValue == 0) {
-					newSelectedValue = 1;
-				} else {
-					newSelectedValue = 0;
-				}
-
-				ContentValues newFieldValues = new ContentValues();
-				newFieldValues.put(COL_ARTICLE_SELECTED, newSelectedValue);
-				UpdateArticleFieldValues(context, articleID, newFieldValues);
-
-				cursor.close();
-			}
-		}*/
-
-	/*	public static void setCheckBox(Context context, long articleID, int newCheckValue) {
-			Cursor cursor = getArticle(context, articleID);
-			if (cursor != null) {
-				cursor.moveToFirst();
-				int columnIndex = cursor.getColumnIndexOrThrow(COL_ARTICLE_SELECTED);
-				int checkValue = cursor.getInt(columnIndex);
-
-				ContentValues newFieldValues = new ContentValues();
-				newFieldValues.put(COL_ARTICLE_SELECTED, newCheckValue);
-				UpdateArticleFieldValues(context, articleID, newFieldValues);
-
-				cursor.close();
-			}
-		}*/
 
 	public static int DeselectAllSelectedArticles(Context context) {
 		int numberOfUpdatedRecords = -1;

@@ -1,6 +1,5 @@
 package com.lbconsulting.homework311_lorenbak;
 
-import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -32,18 +31,6 @@ public class DetailsFragment extends Fragment {
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		MyLog.i("DetailsFragment", "onActivityCreated()");
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		MyLog.i("DetailsFragment", "onAttach()");
-		super.onAttach(activity);
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.i("DetailsFragment", "onCreateView()");
 
@@ -69,7 +56,7 @@ public class DetailsFragment extends Fragment {
 				tvEmptyFragDetails.setVisibility(View.GONE);
 			}
 
-			if (cursor != null && view != null) {
+			if (cursor != null) {
 				cursor.moveToFirst();
 				TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
 				if (tvTitle != null) {
@@ -100,6 +87,8 @@ public class DetailsFragment extends Fragment {
 			}
 
 		} else {
+			// Hide the details linear layout and show the
+			// "No article selected." message
 			if (fragDetailsLinearLayout != null) {
 				fragDetailsLinearLayout.setVisibility(View.GONE);
 			}
@@ -113,7 +102,7 @@ public class DetailsFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		MyLog.i("DetailsFragment", "onSaveInstanceState()");
-		// Store our listID
+		// Store our mActiveArticleID
 		outState.putLong("articleID", mActiveArticleID);
 		super.onSaveInstanceState(outState);
 	}
@@ -122,18 +111,6 @@ public class DetailsFragment extends Fragment {
 	public void onDestroy() {
 		MyLog.i("DetailsFragment", "onDestroy()");
 		super.onDestroy();
-	}
-
-	@Override
-	public void onDestroyView() {
-		MyLog.i("DetailsFragment", "onDestroyView()");
-		super.onDestroyView();
-	}
-
-	@Override
-	public void onDetach() {
-		MyLog.i("DetailsFragment", "onDetach()");
-		super.onDetach();
 	}
 
 	@Override
@@ -147,17 +124,4 @@ public class DetailsFragment extends Fragment {
 		MyLog.i("DetailsFragment", "onResume()");
 		super.onResume();
 	}
-
-	@Override
-	public void onStart() {
-		MyLog.i("DetailsFragment", "onStart()");
-		super.onStart();
-	}
-
-	@Override
-	public void onStop() {
-		MyLog.i("DetailsFragment", "onStop()");
-		super.onStop();
-	}
-
 }

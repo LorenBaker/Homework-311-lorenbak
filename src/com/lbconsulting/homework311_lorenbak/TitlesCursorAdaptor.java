@@ -38,19 +38,15 @@ public class TitlesCursorAdaptor extends CursorAdapter {
 			boolean isArticleRead = ArticlesTable.isArticleRead(context, articleID);
 
 			if (isArticleRead) {
-				// view.setBackground(context.getResources().getDrawable(R.drawable.read_rectangle_black_stroke));
 				view.setBackgroundColor(context.getResources().getColor(R.color.greyLight1));
 
 			} else {
-				// view.setBackground(context.getResources().getDrawable(R.drawable.default_rectangle_no_stroke));
 				view.setBackgroundColor(context.getResources().getColor(android.R.color.background_light));
 			}
 
 			if (isArticleSelected) {
-				// view.setBackground(context.getResources().getDrawable(R.drawable.selected_rectangle_red_stroke));
 				view.setBackgroundColor(context.getResources().getColor(R.color.blueLight));
 			}
-
 		}
 	}
 

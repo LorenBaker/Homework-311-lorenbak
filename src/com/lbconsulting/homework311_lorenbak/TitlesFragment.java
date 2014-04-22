@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.lbconsulting.homework311_lorenbak.database.ArticlesTable;
+import com.lbconsulting.homework311_lorenbak.database.HW311ContentProvider;
 
 public class TitlesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -151,12 +152,14 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v, int position, long itemID) {
+					// An item has been selected ... show it's details via a call back to the TitlesActivity
 					mOnTitleSelectedCallback.OnArticleSelected(itemID);
 				}
 			});
 
 			mTitlesListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
+				// Contextual action mode
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long articleID) {
 					mTitlesListView.setItemChecked(position, !ArticlesTable.isArticleSelected(getActivity(), articleID));
@@ -184,24 +187,6 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onDestroyView() {
-		MyLog.i("TitlesFragment", "onDestroyView()");
-		super.onDestroyView();
-	}
-
-	@Override
-	public void onDetach() {
-		MyLog.i("TitlesFragment", "onDetach()");
-		super.onDetach();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		MyLog.i("ListsDialogFragment", "onSaveInstanceState");
-		super.onSaveInstanceState(outState);
-	}
-
-	@Override
 	public void onPause() {
 		MyLog.i("TitlesFragment", "onPause()");
 		super.onPause();
@@ -211,18 +196,6 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	public void onResume() {
 		MyLog.i("TitlesFragment", "onResume()");
 		super.onResume();
-	}
-
-	@Override
-	public void onStart() {
-		MyLog.i("TitlesFragment", "onStart()");
-		super.onStart();
-	}
-
-	@Override
-	public void onStop() {
-		MyLog.i("TitlesFragment", "onStop()");
-		super.onStop();
 	}
 
 	@Override
@@ -284,20 +257,25 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	private void RefreshArticles(String dataFilename) {
-		AssetManager assetManager = getActivity().getAssets();
-		InputStream input = null;
-		try {
-			input = assetManager.open(dataFilename);
-			ArticlesParser.parse(getActivity(), input);
-			input.close();
+		if (dataFilename != null && !dataFilename.isEmpty()) {
+			AssetManager assetManager = getActivity().getAssets();
+			if (assetManager != null) {
+				InputStream input = null;
+				try {
+					input = assetManager.open(dataFilename);
+					if (input != null) {
+						ArticlesParser.parse(getActivity(), input);
+						input.close();
+					}
+				} catch (IOException e) {
+					MyLog.e("Titles_ACTIVITY",
+							"RefreshArticles(): IOException opening " + dataFilename + "\n" + e.toString());
 
-		} catch (IOException e) {
-			MyLog.e("Titles_ACTIVITY", "RefreshArticles(): IOException opening " + dataFilename);
-			e.printStackTrace();
-
-		} catch (XmlPullParserException e) {
-			MyLog.e("Titles_ACTIVITY", "RefreshArticles(): XmlPullParserException parsing " + dataFilename);
-			e.printStackTrace();
+				} catch (XmlPullParserException e) {
+					MyLog.e("Titles_ACTIVITY", "RefreshArticles(): XmlPullParserException parsing " + dataFilename
+							+ "\n" + e.toString());
+				}
+			}
 		}
 	}
 
@@ -310,21 +288,32 @@ public class TitlesFragment extends Fragment implements LoaderManager.LoaderCall
 
 		@Override
 		protected Void doInBackground(String... dataFilename) {
-			// simulate an Internet download
-			try {
-				Thread.sleep(3500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 
+			// Suppress content provider notifying loaders of changes
+			// until after all article data has been updated in the database
+			HW311ContentProvider.setSupressUpdates(true);
 			RefreshArticles(dataFilename[0]);
+
+			// Simulate an Internet download to allow the loading indicator
+			// to be seen for a reasonable period of time
+			try {
+				Thread.sleep(2500);
+			} catch (InterruptedException e) {
+				MyLog.e("Titles_ACTIVITY",
+						"doInBackground(): InterruptedException " + dataFilename + "\n" + e.toString());
+			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
+			// Allow normal notification of updates
+			HW311ContentProvider.setSupressUpdates(false);
+			// Restart the loader to show database update changes
+			mLoaderManager.restartLoader(ITEMS_LOADER_ID, null, mTitlesFragmentCallbacks);
+			// Hide the loading indicator and show the article list
 			DismissLoadingIndicator();
+
 			super.onPostExecute(result);
 		}
 
